@@ -33,10 +33,11 @@ public class RestserviceApplication {
 	}
 
 	@Bean
-	public RestTemplate restTemplate(){
-		RestTemplate restTemplate = new RestTemplate();
-		return restTemplate;
-	}
+    public RestTemplate restTemplate(){
+        RestTemplate restTemplate = new RestTemplate();
+        return restTemplate;
+    }
+
 //	@PostConstruct
 //	protected void init() {
 //

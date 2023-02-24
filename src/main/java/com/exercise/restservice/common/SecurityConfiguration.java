@@ -1,9 +1,12 @@
 package com.exercise.restservice.common;
 
 import com.exercise.restservice.service.CustomUserService;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -18,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@Data
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
@@ -32,7 +36,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
-		auth.inMemoryAuthentication().withUser("Pardeep").password(passwordEncoder().encode("test@123"))
+		auth.inMemoryAuthentication().withUser("Planny").password(passwordEncoder().encode("test@123"))
 				.authorities("USER", "ADMIN");
 
 		auth.userDetailsService(userService).passwordEncoder(passwordEncoder());
@@ -57,7 +61,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.authenticationEntryPoint(authenticationEntryPoint).and()
 				.authorizeRequests((request) -> request.antMatchers("/h2-console/**", "/api/v1/auth/create", "/api/v1/auth/login").permitAll()
 						.antMatchers(HttpMethod.OPTIONS, "/**").permitAll().anyRequest().authenticated())
-				.addFilterBefore(new JWTAuthenticationFilter(userService, jWTTokenHelper),
+				.addFilterBefore(new JWTAuthenticationFilter(userService, jWTTokenHelper), 
 						UsernamePasswordAuthenticationFilter.class);
 
 		http.csrf().disable().cors().and().headers().frameOptions().disable();

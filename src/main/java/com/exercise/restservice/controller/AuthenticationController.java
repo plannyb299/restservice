@@ -29,15 +29,14 @@ import java.security.spec.InvalidKeySpecException;
 public class AuthenticationController {
 
 
-	private final AuthenticationManager authenticationManager;
 
 	private final CustomUserService userService;
 
-	@Autowired
-	JWTTokenHelper jWTTokenHelper;
+	private final JWTTokenHelper jWTTokenHelper;
 
-
+	private final AuthenticationManager authenticationManager;
 	private final UserDetailsService userDetailsService;
+
 
 	@PostMapping("/auth/login")
 	public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) throws InvalidKeySpecException, NoSuchAlgorithmException {
@@ -48,11 +47,10 @@ public class AuthenticationController {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		User user = (User) authentication.getPrincipal();
-		String jwtToken = jWTTokenHelper.generateToken(user.getUsername());
+		String jwtToken = jWTTokenHelper.generateToken(user.getUsername(),  user.getAuthorities());
 
 		LoginResponse response = new LoginResponse();
 		response.setToken(jwtToken);
-
 
 		return ResponseEntity.ok(response);
 	}
@@ -65,14 +63,8 @@ public class AuthenticationController {
 
 	@GetMapping("/auth/userinfo")
 	public ResponseEntity<?> getUserInfo(Principal user) {
-		User userObj = (User) userDetailsService.loadUserByUsername(user.getName());
 
-		UserInfo userInfo = new UserInfo();
-		userInfo.setFirstName(userObj.getFirstName());
-		userInfo.setLastName(userObj.getLastName());
-		userInfo.setRoles(userObj.getAuthorities().toArray());
-
-
+		UserInfo userInfo = userService.getUser(user);
 		return ResponseEntity.ok(userInfo);
 
 

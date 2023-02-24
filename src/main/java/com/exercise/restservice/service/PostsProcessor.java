@@ -13,8 +13,8 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -27,6 +27,7 @@ public class PostsProcessor {
 
     private final PostRepository postRepository;
     private final RestTemplate restTemplate;
+
 
     private ClientHttpRequestFactory getClientHttpRequestFactory() {
         int timeout = 5000;
@@ -51,19 +52,37 @@ public class PostsProcessor {
         return posts1;
     }
 
-    public Posts getPostById(Long id){
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-        HttpEntity<String> entity = new HttpEntity<>(headers);
+    public Posts getPostById(PostDb postDb){
 
-        ResponseEntity<Posts> post = restTemplate.exchange(postsUrl+id, HttpMethod.GET, entity, Posts.class);
+        Posts post = new Posts();
+        BeanUtils.copyProperties(postDb,post);
 
-        log.info("Post", post.getBody());
-        return post.getBody();
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+//        HttpEntity<String> entity = new HttpEntity<>(headers);
+//
+//        ResponseEntity<Posts> post = restTemplate.exchange(postsUrl+id, HttpMethod.GET, entity, Posts.class);
+//
+//        log.info("Post", post.getBody());
+        return post;
     }
 
+    public List<Posts> getPostByUserId(List<PostDb> postDb){
+
+        List<Posts> posts = new ArrayList<Posts>();
+        for(PostDb post : postDb) {
+            Posts posts1 = new Posts();
+            BeanUtils.copyProperties(post,posts1);
+            posts.add(posts1);
+        }
+
+        return posts;
+    }
+
+
+
     public Posts save(Posts post){
-        HttpEntity<Posts> request = new HttpEntity<>(new Posts());
+        HttpEntity<Posts> request = new HttpEntity<>(post);
         Posts posts = restTemplate.postForObject(postsUrl, request, Posts.class);
 
         return posts;
@@ -71,7 +90,7 @@ public class PostsProcessor {
 
     public Posts update(Posts post){
         HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         HttpEntity<Posts> entity = new HttpEntity<Posts>(post,headers);
 
         Posts updatedPost = restTemplate.exchange(
@@ -79,11 +98,12 @@ public class PostsProcessor {
         return updatedPost;
     }
 
-    public Posts delete(Long id){
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<String> entity = new HttpEntity<>(httpHeaders);
-        return restTemplate.exchange(postsUrl+id, HttpMethod.DELETE,entity, Posts.class).getBody();
-
-    }
+//    public  delete(Long id){
+//
+//         postRepository.deleteById(id);
+//        HttpHeaders httpHeaders = new HttpHeaders();
+//        httpHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+//        HttpEntity<String> entity = new HttpEntity<>(httpHeaders);
+//        return restTemplate.exchange(postsUrl+id, HttpMethod.DELETE,entity, Posts.class).getBody();
+//    }
 }
